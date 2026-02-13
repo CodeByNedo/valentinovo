@@ -8,7 +8,6 @@ import WhyMartinaPanel from "./WhyMartinaPanel";
 import QuestionsPanel from "./QuestionsPanel";
 import LetterPanel from "./LetterPanel";
 import TopBar from "./TopBar";
-import Footer from "./Footer";
 
 type Props = {
   days: number;
@@ -217,8 +216,7 @@ export default function Desktop({ days, passcode }: Props) {
             </div>
           </div>
 
-          {/* ✅ footer izvan carda */}
-          <Footer />
+         
 
           {/* WHY MODAL */}
           {openWhy && (
