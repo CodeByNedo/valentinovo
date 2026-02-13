@@ -54,14 +54,3 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-html,
-body {
-  height: 100%;
-  background: #0b0012;
-  overscroll-behavior: none;
-}
-
-body {
-  min-height: 100svh;
-}
