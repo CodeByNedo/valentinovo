@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import BootScreen from "./components/BootScreen";
 import Desktop from "./components/Desktop";
 import FallingHearts from "./components/FallingHearts";
-import Footer from "./components/Footer";
 import { daysBetweenUTC } from "./lib/dates";
 import { HER_NAME, PASSCODE, START_DATE_ISO, makeBootLines } from "./lib/content";
 
@@ -17,11 +16,9 @@ export default function Home() {
   const [phase, setPhase] = useState<Phase>("start");
 
   return (
-    <main className="relative min-h-[100dvh] flex flex-col text-neutral-100 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-hidden">
-      
+    <main className="relative min-h-[100dvh] text-neutral-100 overflow-hidden flex flex-col">
       {/* Background */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-pink-950 via-fuchsia-900 to-rose-900" />
-
       <div className="absolute -z-10 inset-0">
         <div className="absolute -top-28 -left-28 h-96 w-96 rounded-full bg-pink-500/25 blur-3xl" />
         <div className="absolute top-1/3 -right-32 h-[28rem] w-[28rem] rounded-full bg-fuchsia-500/20 blur-3xl" />
@@ -30,9 +27,8 @@ export default function Home() {
 
       <FallingHearts count={36} />
 
-      {/* Content wrapper */}
-      <div className="flex-1 flex items-center justify-center">
-        
+      {/* Content area (centar) */}
+      <div className="flex-1 flex items-center justify-center px-6 pt-8 pb-4">
         {phase === "start" && (
           <div className="w-full max-w-3xl">
             <div className="rounded-2xl border border-pink-200/15 bg-black/35 backdrop-blur-xl p-10 shadow-2xl text-center">
@@ -62,24 +58,29 @@ export default function Home() {
         )}
 
         {phase === "boot" && (
-          <BootScreen
-            key="boot-sequence"
-            days={days}
-            onDone={() => setPhase("desktop")}
-          />
+          <BootScreen key="boot-sequence" days={days} onDone={() => setPhase("desktop")} />
         )}
 
-        {phase === "desktop" && (
-          <Desktop days={days} passcode={PASSCODE} />
-        )}
+        {phase === "desktop" && <Desktop days={days} passcode={PASSCODE} />}
       </div>
 
-      {/* Footer SAMO ako nismo u desktop fazi */}
-      {phase !== "desktop" && (
-        <div className="mt-10">
-          <Footer />
+      <footer className="px-6 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 text-center">
+        <div className="text-[11px] text-pink-100/35 font-mono">
+          © 2026 LoveOS — od Nede za Martinu 💌
         </div>
-      )}
+        <div className="mt-2 text-[12px] text-pink-100/45">
+          Napravljeno sa ❤️ za nekog posebnog
+        </div>
+
+        {/* opcionalno dugme “na vrh” (ako želiš na startu) */}
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="mt-3 inline-flex items-center justify-center rounded-full border border-pink-200/20 bg-black/15 px-4 py-2 text-xs text-pink-100/55 backdrop-blur hover:bg-black/25 transition"
+        >
+          Na vrh
+        </button>
+      </footer>
     </main>
   );
 }
