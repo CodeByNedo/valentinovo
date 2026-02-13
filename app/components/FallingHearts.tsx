@@ -22,7 +22,6 @@ function rand(min: number, max: number) {
 const HEART_GLYPHS = ["💗", "💖", "💕", "💞", "💓", "💘", "❤️"];
 
 export default function FallingHearts({ count = 32 }: { count?: number }) {
-  // ✅ ključ za hydration fix
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -50,11 +49,12 @@ export default function FallingHearts({ count = 32 }: { count?: number }) {
     });
   }, [count, mounted]);
 
-  // ✅ dok SSR i prvi render — ništa (nema mismatch)
   if (!mounted) return null;
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    // ✅ FIX: fixed overlay -> srca padaju i kad skrolas
+    // z-index: iza UI, iznad pozadine
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       {hearts.map((h) => (
         <span
           key={h.id}
