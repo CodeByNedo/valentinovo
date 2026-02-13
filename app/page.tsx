@@ -16,7 +16,7 @@ export default function Home() {
   const [phase, setPhase] = useState<Phase>("start");
 
   return (
-  <main className="relative min-h-[100svh] text-neutral-100 flex items-center justify-center p-6 overflow-hidden">
+    <main className="relative min-h-screen text-neutral-100 flex items-center justify-center p-6 overflow-hidden">
       {/* Pink gradient background */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-pink-950 via-fuchsia-900 to-rose-900" />
 
