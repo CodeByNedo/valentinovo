@@ -24,7 +24,6 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
     const expected = digitsOnly(passcode.trim());
     const typed = digitsOnly(code.trim());
 
-    // ✅ radi za 21122025, 21/12/2025, 21.12.2025, 21-12-2025, "21 12 2025"...
     const ok = typed.length > 0 && typed === expected;
 
     if (ok) {
@@ -69,7 +68,12 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="unesi odgovarajuci datum"
-            className="w-full rounded-lg border border-pink-200/15 bg-black/25 px-3 py-2 font-mono text-sm text-pink-50/90 outline-none focus:border-pink-200/35"
+            inputMode="numeric"
+            pattern="[0-9/.\- ]*"
+            autoComplete="one-time-code"
+            enterKeyHint="done"
+            className="w-full rounded-lg border border-pink-200/15 bg-black/25 px-3 py-3 font-mono text-base text-pink-50/90 outline-none focus:border-pink-200/35"
+            style={{ fontSize: 16 }} // ✅ iOS zoom fix
           />
 
           <button
@@ -79,7 +83,9 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
             Otključaj
           </button>
 
-          {codeError ? <p className="text-xs text-pink-100/60">{codeError}</p> : null}
+          {codeError ? (
+            <p className="text-xs text-pink-100/60">{codeError}</p>
+          ) : null}
 
           <p className="font-mono text-xs text-pink-100/50">
             hint: probaj datum😉 dan/mjesec/godina
@@ -87,7 +93,9 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
         </form>
       ) : (
         <div className="mt-4 rounded-xl border border-pink-200/20 bg-black/25 p-4 unlock-card">
-          <p className="font-mono text-xs text-pink-100/60">otključana poruka</p>
+          <p className="font-mono text-xs text-pink-100/60">
+            otključana poruka
+          </p>
 
           <p className="mt-2 text-pink-50/95">
             Nagrada: <b>večera + masaža</b>.
@@ -97,7 +105,6 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
             🔓 Otključan je novi prozor sa pitanjima.
           </p>
 
-          {/* optional - makni kasnije */}
           <button
             type="button"
             onClick={resetUnlock}
