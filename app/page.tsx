@@ -53,12 +53,26 @@ export default function Home() {
               <p className="mt-6 text-pink-100/80 text-lg">Spremna za jedno malo iznenađenje? 🎀</p>
 
               <button
-                onClick={() => setPhase("boot")}
-                className="mt-10 rounded-xl bg-pink-200 px-8 py-4 text-neutral-950 font-semibold text-lg hover:scale-105 transition-transform duration-200 shadow-[0_0_30px_rgba(255,105,180,0.4)]"
-                type="button"
-              >
-                Krenimo
-              </button>
+              onClick={() => setPhase("boot")}
+              className="
+                mt-10
+                rounded-xl
+                bg-pink-200
+                px-8 py-4
+                text-neutral-950
+                font-semibold
+                text-lg
+                shadow-[0_0_30px_rgba(255,105,180,0.4)]
+                transition-all duration-150
+                hover:scale-105
+                active:scale-95
+                active:shadow-[0_0_50px_rgba(255,105,180,0.7)]
+                active:brightness-95
+              "
+              type="button"
+            >
+              Krenimo
+            </button>
 
               <p className="mt-6 text-xs text-pink-100/50 font-mono">Martina, ovo je za tebe.</p>
             </div>
