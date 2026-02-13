@@ -2,10 +2,31 @@
 
 @tailwind utilities;
 
-/* Optional: malo “smooth” osjećaja */
+/* Global reset + stabilnost */
 html,
 body {
   height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* ✅ VRACAMO ROMANTICNU POZADINU */
+  background: linear-gradient(
+    135deg,
+    #2b0036 0%,
+    #5a0b3f 40%,
+    #8b0f53 75%,
+    #a81d6b 100%
+  );
+
+  color: #fff;
+
+  /* ✅ Sprječava horizontalni scroll */
+  overflow-x: hidden;
+
+  /* ✅ iOS stabilnost */
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
 }
 
 /* Falling hearts */
@@ -23,7 +44,7 @@ body {
   }
 }
 
-/* Malo “njihanja” dok pada */
+/* Blago njihanje srca */
 @keyframes sway {
   0% {
     transform: translateX(-10px);
@@ -47,10 +68,12 @@ body {
   animation-iteration-count: infinite;
 }
 
+/* Hide scrollbar but allow scroll */
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

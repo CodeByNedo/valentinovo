@@ -11,92 +11,89 @@ export default function LetterPanel() {
   const sealRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!paperRef.current || !foldRef.current || !sealRef.current) return undefined;
+    const paper = paperRef.current;
+    const fold = foldRef.current;
+    const seal = sealRef.current;
+    if (!paper || !fold || !seal) return;
 
-    const tl = gsap.timeline();
+    const isTouch =
+      typeof window !== "undefined" &&
+      (navigator.maxTouchPoints > 0 || "ontouchstart" in window);
 
-    // start state: sakrij tekst (bez flash-a)
-    gsap.set(paperRef.current, {
-      clipPath: "inset(0 0 100% 0)",
-      opacity: 1,
-    });
+    const tl = gsap.timeline({ paused: isTouch });
 
-    // fold highlight vidljiv na početku
-    gsap.set(foldRef.current, { opacity: 1 });
-
-    // ✅ pečat: start "iznad papira" (ka kameri) -> poslije ide ka unutra
-    gsap.set(sealRef.current, {
+    // start state
+    gsap.set(paper, { clipPath: "inset(0 0 100% 0)", opacity: 1 });
+    gsap.set(fold, { opacity: 1 });
+    gsap.set(seal, {
       opacity: 0,
-      scale: 1.55, // veći = kao bliže kameri
+      scale: 1.55,
       rotate: -12,
       filter: "drop-shadow(0 18px 18px rgba(0,0,0,0.35))",
       transformOrigin: "50% 55%",
       x: 0,
-      y: 0, // nema pada odozgo
+      y: 0,
     });
 
-    // 1) SLOW reveal od vrha ka dnu
-    tl.to(paperRef.current, {
+    // reveal
+    tl.to(paper, {
       clipPath: "inset(0 0 0% 0)",
       duration: 5.6,
       ease: "power1.out",
     });
 
-    // 2) fold highlight neka još malo ostane pa nestane
-    tl.to(
-      foldRef.current,
-      { opacity: 0, duration: 2.8, ease: "power2.out" },
-      "-=3.2"
-    );
+    // fold fade
+    tl.to(fold, { opacity: 0, duration: 2.8, ease: "power2.out" }, "-=3.2");
 
-    // 3) ✅ STAMP (ka unutra + shake)
-    tl.to(sealRef.current, { opacity: 1, duration: 0.15 }, "+=0.25")
-
-      // "ulazi" u papir (scale ide na 1)
-      .to(sealRef.current, {
-        scale: 1,
-        rotate: -6,
-        duration: 0.42,
-        ease: "power3.in",
-      })
-
-      // udar (squash)
-      .to(sealRef.current, {
-        scaleX: 0.92,
-        scaleY: 1.08,
-        duration: 0.12,
-        ease: "power2.out",
-      })
-
-      // zatrese se kad zapečati
-      .to(sealRef.current, {
-        x: -3,
-        duration: 0.05,
-        repeat: 6,
-        yoyo: true,
-        ease: "power1.inOut",
-      })
-
-      // smiri se
-      .to(sealRef.current, {
-        x: 0,
-        scaleX: 1,
-        scaleY: 1,
-        rotate: -6,
-        duration: 0.35,
-        ease: "elastic.out(1, 0.5)",
-      })
-
-      // shadow manji (kao zalijepljeno)
+    // stamp
+    tl.to(seal, { opacity: 1, duration: 0.15 }, "+=0.25")
+      .to(seal, { scale: 1, rotate: -6, duration: 0.42, ease: "power3.in" })
+      .to(seal, { scaleX: 0.92, scaleY: 1.08, duration: 0.12, ease: "power2.out" })
+      .to(seal, { x: -3, duration: 0.05, repeat: 6, yoyo: true, ease: "power1.inOut" })
+      .to(seal, { x: 0, scaleX: 1, scaleY: 1, rotate: -6, duration: 0.35, ease: "elastic.out(1, 0.5)" })
       .to(
-        sealRef.current,
-        {
-          filter: "drop-shadow(0 7px 9px rgba(0,0,0,0.22))",
-          duration: 0.25,
-          ease: "power2.out",
-        },
+        seal,
+        { filter: "drop-shadow(0 7px 9px rgba(0,0,0,0.22))", duration: 0.25, ease: "power2.out" },
         "-=0.22"
       );
+
+    // ✅ touch: pusti tek kad je papir skoro skroz u viewportu (bez scroll bugova)
+    if (isTouch) {
+      let played = false;
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          const e = entries[0];
+          if (!e) return;
+
+          // kad je 85% papira vidljivo -> play
+          if (!played && e.isIntersecting && e.intersectionRatio >= 0.85) {
+            played = true;
+            tl.play(0);
+            io.disconnect();
+          }
+        },
+        { threshold: [0.35, 0.6, 0.85] }
+      );
+
+      io.observe(paper);
+
+      // fallback: ako je već vidljiv odmah (npr. odmah na otvorenom nivou)
+      requestAnimationFrame(() => {
+        const rect = paper.getBoundingClientRect();
+        const visible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        if (!played && visible) {
+          played = true;
+          tl.play(0);
+          io.disconnect();
+        }
+      });
+
+      return () => {
+        io.disconnect();
+        tl.kill();
+      };
+    }
 
     return () => {
       tl.kill();
@@ -109,12 +106,10 @@ export default function LetterPanel() {
         ref={paperRef}
         className="relative w-full max-w-2xl rounded-2xl px-10 py-14 shadow-2xl overflow-hidden"
         style={{
-          // ✅ malo više roza, ali blago (nije napadno)
           background:
             "linear-gradient(135deg, rgba(255,238,245,1) 0%, rgba(255,214,232,1) 100%)",
         }}
       >
-        {/* “svjetlo”/fold dok se otkriva */}
         <div
           ref={foldRef}
           className="pointer-events-none absolute top-0 left-0 w-full h-28 bg-gradient-to-b from-white/70 to-transparent"
@@ -128,11 +123,7 @@ export default function LetterPanel() {
           {finalLetter}
         </div>
 
-        {/* WAX SEAL */}
-        <div
-          ref={sealRef}
-          className="absolute bottom-7 right-8 select-none pointer-events-none"
-        >
+        <div ref={sealRef} className="absolute bottom-7 right-8 select-none pointer-events-none">
           <Image
             src="/pictures/wax.png"
             alt="wax seal"

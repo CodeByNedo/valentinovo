@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 
@@ -13,6 +13,10 @@ type Question = {
   options: string[];
   correctIndex: number;
 };
+
+// mali “neutralni” blur placeholder (radi za sve)
+const BLUR =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzEwMTAxMCIvPjwvc3ZnPg==";
 
 export default function QuestionsPanel({ onCompleted }: Props) {
   const questions = useMemo<Question[]>(
@@ -56,6 +60,12 @@ export default function QuestionsPanel({ onCompleted }: Props) {
 
   const isFinal = step === questions.length - 1;
 
+  useEffect(() => {
+    if (!isFinal) return;
+    if (!kusicRef.current) return;
+    gsap.set(kusicRef.current, { x: 16, y: 12 });
+  }, [isFinal]);
+
   function next() {
     setFeedback(null);
     setStep((s) => s + 1);
@@ -64,7 +74,6 @@ export default function QuestionsPanel({ onCompleted }: Props) {
   function handleAnswer(index: number) {
     const current = questions[step];
 
-    // FINAL BOSS: Kusić bježi
     if (isFinal && index === 0) {
       moveKusicSafely();
       return;
@@ -73,7 +82,7 @@ export default function QuestionsPanel({ onCompleted }: Props) {
     if (index === current.correctIndex) {
       setFeedback("correct");
 
-      const delay = isFinal ? 5000 : 1800; // 👈 samo zadnje traje duže
+      const delay = isFinal ? 5000 : 1800;
 
       setTimeout(() => {
         if (isFinal) {
@@ -100,18 +109,19 @@ export default function QuestionsPanel({ onCompleted }: Props) {
     const arenaWidth = panel.width;
     const arenaHeight = 160;
 
+    const forbiddenBottom = 74;
     const maxX = Math.max(padding, arenaWidth - kusic.width - padding);
-    const maxY = Math.max(padding, arenaHeight - kusic.height - padding);
+    const maxY = Math.max(padding, arenaHeight - forbiddenBottom - kusic.height);
 
     const panicX = panic.left - panel.left;
     const panicY = panic.top - panel.top;
-    const buffer = 18;
+    const buffer = 22;
 
     let tries = 0;
     let x = padding;
     let y = padding;
 
-    while (tries < 40) {
+    while (tries < 60) {
       const rx = padding + Math.random() * (maxX - padding);
       const ry = padding + Math.random() * (maxY - padding);
 
@@ -133,7 +143,7 @@ export default function QuestionsPanel({ onCompleted }: Props) {
     gsap.to(kusicRef.current, {
       x,
       y,
-      duration: 0.35,
+      duration: 0.32,
       ease: "power2.out",
     });
   }
@@ -142,18 +152,20 @@ export default function QuestionsPanel({ onCompleted }: Props) {
     return (
       <div className="rounded-2xl border border-pink-200/20 bg-black/35 p-8 text-center">
         <Image
-          src="/pictures/mission-complete-spongebob.gif"
+          src="/pictures/mission-complete-spongebob.webp"
           alt="mission complete"
           width={320}
           height={220}
           className="mx-auto rounded-xl"
+          priority
+          loading="eager"
+          placeholder="blur"
+          blurDataURL={BLUR}
         />
         <h2 className="mt-6 text-xl font-semibold text-pink-50">
           ✅ Level 2 Completed!
         </h2>
-        <p className="mt-2 text-pink-100/80">
-          Otključan je Level 3 💌
-        </p>
+        <p className="mt-2 text-pink-100/80">Otključan je Level 3 💌</p>
       </div>
     );
   }
@@ -163,7 +175,6 @@ export default function QuestionsPanel({ onCompleted }: Props) {
       ref={panelRef}
       className="relative rounded-2xl border border-pink-200/20 bg-black/35 p-6 overflow-hidden"
     >
-
       <div className="mt-3 text-sm text-pink-100/70">
         Pitanje {step + 1} / {questions.length}
       </div>
@@ -212,13 +223,17 @@ export default function QuestionsPanel({ onCompleted }: Props) {
           <Image
             src={
               feedback === "correct"
-                ? "/pictures/correct.png"
-                : "/pictures/roll-thinking-meme-1.jpg"
+                ? "/pictures/correct.webp"
+                : "/pictures/roll-thinking-meme-1.webp"
             }
             alt="meme"
             width={240}
             height={240}
             className="rounded-xl"
+            priority
+            loading="eager"
+            placeholder="blur"
+            blurDataURL={BLUR}
           />
 
           {feedback === "correct" ? (
