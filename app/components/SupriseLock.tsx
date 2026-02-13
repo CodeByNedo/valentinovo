@@ -103,7 +103,7 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
           </p>
 
           <p className="mt-3 text-sm text-pink-50/80">
-            🔓 Otključan je novi prozor sa pitanjima.
+            🔓 Otključan je Nivo 2.
           </p>
 
           <button
