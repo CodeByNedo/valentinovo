@@ -23,7 +23,7 @@ export default function BootScreen({ days, onDone }: Props) {
       { text: "Učitavam: poljubac (uskoro) 😌", delayMs: 900 },
       { text: "Hemija stabilna. Previsoka zapravo 🔥", delayMs: 1000 },
       { text: "Sve je spremno. Dobro došla, Martina 💗", delayMs: 1100 },
-      { text: "Pokrećem nesto posesbno za tebe...🎀", delayMs: 1100 },
+      { text: "Pokrećem nesto posebno za tebe...🎀", delayMs: 1100 },
 
     ],
     []

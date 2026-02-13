@@ -172,7 +172,7 @@ export default function Desktop({ days, passcode }: Props) {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">Pitanja (Nivo 2)</h3>
+                    <h3 className="text-lg font-medium">(Nivo 2)</h3>
                     <span className="font-mono text-xs text-pink-100/60">
                       {level2Unlocked ? (questionsDone ? "✓ završeno" : "otključano") : "zaključano"}
                     </span>
@@ -184,7 +184,7 @@ export default function Desktop({ days, passcode }: Props) {
                     </div>
                   ) : (
                     <p className="mt-2 text-sm text-pink-50/70">
-                      Završi sva 3 zadatka iz Nivoa 1 da otključaš pitanja.
+                      Završi sva 3 zadatka iz Nivoa 1 da otključaš Nivo 2.
                     </p>
                   )}
                 </div>
@@ -198,7 +198,7 @@ export default function Desktop({ days, passcode }: Props) {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">Pismo (Nivo 3)</h3>
+                    <h3 className="text-lg font-medium">(Nivo 3)</h3>
                     <span className="font-mono text-xs text-pink-100/60">
                       {level3Unlocked ? "otključano" : "zaključano"}
                     </span>
@@ -208,7 +208,7 @@ export default function Desktop({ days, passcode }: Props) {
                     <LetterPanel key={`letter-${questionsDone}`} />
                   ) : (
                     <p className="mt-2 text-sm text-pink-50/70">
-                      Završi pitanja da otključaš pismo.
+                      Završi pitanja da otključaš Nivo 3.
                     </p>
                   )}
                 </div>
