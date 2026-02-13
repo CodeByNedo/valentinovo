@@ -65,16 +65,17 @@ export default function SupriseLock({ passcode, onUnlocked }: Props) {
           </p>
 
           <input
+            type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="unesi odgovarajuci datum"
-            inputMode="numeric"
-            pattern="[0-9/.\- ]*"
+            inputMode="text"
             autoComplete="one-time-code"
             enterKeyHint="done"
             className="w-full rounded-lg border border-pink-200/15 bg-black/25 px-3 py-3 font-mono text-base text-pink-50/90 outline-none focus:border-pink-200/35"
-            style={{ fontSize: 16 }} // ✅ iOS zoom fix
+            style={{ fontSize: 16 }} // ✅ iOS zoom fix ostaje
           />
+
 
           <button
             type="submit"
