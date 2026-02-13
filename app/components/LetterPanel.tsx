@@ -20,24 +20,24 @@ export default function LetterPanel() {
       typeof window !== "undefined" &&
       (navigator.maxTouchPoints > 0 || "ontouchstart" in window);
 
-    // ===== start state (anti-flash + iOS clip-path) =====
     gsap.set(paper, {
       clipPath: "inset(0 0 100% 0)",
       WebkitClipPath: "inset(0 0 100% 0)",
       opacity: 1,
     });
+
     gsap.set(fold, { opacity: 1 });
+
     gsap.set(seal, {
       opacity: 0,
       scale: 1.55,
       rotate: -12,
-      filter: "drop-shadow(0 18px 18px rgba(0,0,0,0.35))",
+      y: -60,
       transformOrigin: "50% 55%",
-      x: 0,
-      y: -60, // odozgo
+      filter: "drop-shadow(0 18px 18px rgba(0,0,0,0.35))",
     });
 
-    // ===== 1) Paper reveal timeline =====
+    // ===== PAPER REVEAL =====
     const paperTl = gsap.timeline({ paused: true });
 
     paperTl.to(paper, {
@@ -53,7 +53,7 @@ export default function LetterPanel() {
       "-=2.4"
     );
 
-    // ===== 2) Seal timeline (ONLY at bottom on touch) =====
+    // ===== SEAL ANIMATION =====
     const sealTl = gsap.timeline({ paused: true });
 
     sealTl
@@ -64,14 +64,12 @@ export default function LetterPanel() {
       .to(seal, { x: 0, scaleX: 1, scaleY: 1, duration: 0.35, ease: "elastic.out(1, 0.5)" })
       .to(
         seal,
-        { filter: "drop-shadow(0 7px 9px rgba(0,0,0,0.22))", duration: 0.25, ease: "power2.out" },
+        { filter: "drop-shadow(0 7px 9px rgba(0,0,0,0.22))", duration: 0.25 },
         "-=0.22"
       );
 
-    // Desktop: sve odmah (kao prije)
     if (!isTouch) {
       paperTl.play(0);
-      // pečat poslije (da zadrži “lup” nakon otkrivanja)
       gsap.delayedCall(0.9, () => sealTl.play(0));
       return () => {
         paperTl.kill();
@@ -82,60 +80,46 @@ export default function LetterPanel() {
     // ===== TOUCH LOGIC =====
     let paperPlayed = false;
     let sealPlayed = false;
+    let timeoutId: number | null = null;
 
-    const playPaperIfInView = () => {
+    const playPaper = () => {
       if (paperPlayed) return;
-
-      const rect = paper.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      // kad je “glavni dio” papira u view -> pusti reveal
-      const ok = rect.top < vh * 0.7 && rect.bottom > vh * 0.25;
-      if (ok) {
-        paperPlayed = true;
-        paperTl.play(0);
-      }
+      paperPlayed = true;
+      paperTl.play(0);
     };
 
-    const playSealOnlyAtBottom = () => {
-      if (sealPlayed) return;
+    const triggerSealWithDelay = () => {
+      if (sealPlayed || timeoutId) return;
 
-      const rect = paper.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      // ✅ uslov: korisnik je došao skroz do dna pisma:
-      // dno papira je u donjem dijelu viewporta (vidljivo)
-      const bottomVisible = rect.bottom <= vh * 0.98; // skoro skroz u view
-      const notTooEarly = rect.top < vh * 0.4; // da nije “tek ušao”
-
-      if (bottomVisible && notTooEarly) {
+      timeoutId = window.setTimeout(() => {
         sealPlayed = true;
         sealTl.play(0);
+      }, 2500); // ✅ 2.5 sekunde čekanja
+    };
+
+    const cancelSealDelay = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
       }
     };
 
-    const onScroll = () => {
-      playPaperIfInView();
-      playSealOnlyAtBottom();
-    };
-
-    // Observer da se paper reveal pusti čim dođe u viewport
+    // Reveal kad uđe u viewport
     const ioPaper = new IntersectionObserver(
       (entries) => {
-        const e = entries[0];
-        if (e?.isIntersecting) playPaperIfInView();
+        if (entries[0]?.isIntersecting) playPaper();
       },
-      { threshold: [0.15, 0.25, 0.35, 0.5], rootMargin: "0px 0px -10% 0px" }
+      { threshold: [0.2, 0.35] }
     );
     ioPaper.observe(paper);
 
-    // ✅ Bottom trigger: posebni sentinel na dnu papira
+    // Sentinel za dno
     const sentinel = document.createElement("div");
     sentinel.style.position = "absolute";
     sentinel.style.left = "0";
     sentinel.style.right = "0";
     sentinel.style.bottom = "0";
-    sentinel.style.height = "1px";
+    sentinel.style.height = "60px";
     sentinel.style.pointerEvents = "none";
     paper.appendChild(sentinel);
 
@@ -144,27 +128,23 @@ export default function LetterPanel() {
         const e = entries[0];
         if (!e) return;
 
-        // Kad sentinel (dno) uđe u viewport -> pokušaj pečat
-        if (e.isIntersecting) playSealOnlyAtBottom();
+        if (e.isIntersecting) {
+          triggerSealWithDelay();
+        } else {
+          cancelSealDelay();
+        }
       },
       {
-        threshold: [0, 0.1],
-        rootMargin: "0px 0px -2% 0px",
+        threshold: [0.6], // mora stvarno doći do dna
       }
     );
+
     ioBottom.observe(sentinel);
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-
-    // initial check
-    requestAnimationFrame(onScroll);
 
     return () => {
       ioPaper.disconnect();
       ioBottom.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      if (timeoutId) clearTimeout(timeoutId);
       if (sentinel.parentNode) sentinel.parentNode.removeChild(sentinel);
       paperTl.kill();
       sealTl.kill();
@@ -197,7 +177,7 @@ export default function LetterPanel() {
         <div
           ref={sealRef}
           className="absolute bottom-7 right-8 select-none pointer-events-none"
-          style={{ opacity: 0 }} // ✅ anti-flash
+          style={{ opacity: 0 }}
         >
           <Image
             src="/pictures/wax.png"

@@ -19,7 +19,7 @@ export default function Home() {
   const [phase, setPhase] = useState<Phase>("start");
 
   return (
-    <main className="relative min-h-[100dvh] text-neutral-100 overflow-hidden flex flex-col">
+    <main className="relative min-h-[100svh] min-h-[100dvh] text-neutral-100 overflow-hidden flex flex-col">
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-pink-950 via-fuchsia-900 to-rose-900" />
 

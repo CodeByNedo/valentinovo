@@ -83,3 +83,15 @@ textarea,
 select {
   font-size: 16px;
 }
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #600142;
+}
+
+body {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
