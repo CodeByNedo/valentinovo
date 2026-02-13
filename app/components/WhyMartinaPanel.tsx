@@ -19,7 +19,7 @@ export default function WhyMartinaPanel({ onClose, onAllOpened }: Props) {
   const items = useMemo<Item[]>(
     () => [
       { id: "1", title: "Jedan razlog…", body: <>Jer si luda… ali na najbolji mogući način.</> },
-      { id: "2", title: "Još jedan…", body: <>Jer me razumiješ i kad ništa ne kažem.</> },
+      { id: "2", title: "Još jedan…", body: <>Jer me razumiješ!</> },
       {
         id: "3",
         title: "Ovaj je malo bezobrazan…",
@@ -30,7 +30,7 @@ export default function WhyMartinaPanel({ onClose, onAllOpened }: Props) {
           </span>
         ),
       },
-      { id: "4", title: "Ovo volim kod tebe…", body: <>Jer si avanturista u životu i u glavi.</> },
+      { id: "4", title: "Ovo volim kod tebe…", body: <>Jer si avanturista i jedva cekam da obidjemo svijet zajedno.</> },
       { id: "5", title: "Najozbiljniji razlog…", body: <>Jer ćeš jednog dana biti najbolja majka moje djece.</> },
     ],
     []

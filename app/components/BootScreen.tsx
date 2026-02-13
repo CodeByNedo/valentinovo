@@ -46,7 +46,7 @@ export default function BootScreen({ days, onDone }: Props) {
         await new Promise((r) => setTimeout(r, delay));
       }
 
-      await new Promise((r) => setTimeout(r, 2500));
+      await new Promise((r) => setTimeout(r, 1500));
 
       if (!cancelled) onDone();
     }

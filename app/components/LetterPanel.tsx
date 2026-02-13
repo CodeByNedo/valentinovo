@@ -22,8 +22,12 @@ export default function LetterPanel() {
 
     const tl = gsap.timeline({ paused: isTouch });
 
-    // start state
-    gsap.set(paper, { clipPath: "inset(0 0 100% 0)", opacity: 1 });
+    // start state (dodaj WebkitClipPath zbog iOS-a)
+    gsap.set(paper, {
+      clipPath: "inset(0 0 100% 0)",
+      WebkitClipPath: "inset(0 0 100% 0)",
+      opacity: 1,
+    });
     gsap.set(fold, { opacity: 1 });
     gsap.set(seal, {
       opacity: 0,
@@ -38,6 +42,7 @@ export default function LetterPanel() {
     // reveal
     tl.to(paper, {
       clipPath: "inset(0 0 0% 0)",
+      WebkitClipPath: "inset(0 0 0% 0)",
       duration: 5.6,
       ease: "power1.out",
     });
@@ -57,7 +62,7 @@ export default function LetterPanel() {
         "-=0.22"
       );
 
-    // ✅ touch: pusti tek kad je papir skoro skroz u viewportu (bez scroll bugova)
+    // ✅ touch: pusti kad je makar 25% vidljivo (mobile-friendly)
     if (isTouch) {
       let played = false;
 
@@ -66,23 +71,27 @@ export default function LetterPanel() {
           const e = entries[0];
           if (!e) return;
 
-          // kad je 85% papira vidljivo -> play
-          if (!played && e.isIntersecting && e.intersectionRatio >= 0.85) {
+          if (!played && e.isIntersecting && e.intersectionRatio >= 0.25) {
             played = true;
             tl.play(0);
             io.disconnect();
           }
         },
-        { threshold: [0.35, 0.6, 0.85] }
+        {
+          threshold: [0.15, 0.25, 0.35, 0.5],
+          rootMargin: "0px 0px -15% 0px", // krene malo ranije
+        }
       );
 
       io.observe(paper);
 
-      // fallback: ako je već vidljiv odmah (npr. odmah na otvorenom nivou)
+      // fallback: "dovoljno vidljivo" (ne mora full u viewport)
       requestAnimationFrame(() => {
         const rect = paper.getBoundingClientRect();
-        const visible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-        if (!played && visible) {
+        const vh = window.innerHeight;
+        const visibleEnough = rect.top < vh * 0.75 && rect.bottom > vh * 0.25;
+
+        if (!played && visibleEnough) {
           played = true;
           tl.play(0);
           io.disconnect();
